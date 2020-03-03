@@ -70,11 +70,17 @@ def redefine_type_and_extract(tipo):
         print("unknown format... exiting")
         print("Take a look")
         print(f"{tipo}")
-        time.sleep(3)
         if "ASCII" in tipo:
             print("It looks like the flag :)")
+            time.sleep(3)
+            print("<=========================>")
             subprocess.call(["cat", "last_flag"])
-        print(f"\nnº it -> {it}")
+            if "no line terminator" in tipo:
+                print()
+            print("<=========================>")
+        else:
+            print("No ASCII text :(")
+        print(f"nº iterations needed: {it}")
         sys.exit()
 
 
