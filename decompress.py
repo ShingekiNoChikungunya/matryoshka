@@ -2,7 +2,7 @@ import subprocess
 import sys
 import time
 
-DEBUG = 1
+it = 0
 
 compressed = "last_flag"
 
@@ -14,39 +14,18 @@ _xz = "XZ compressed data"
 
 
 def tipo(compressed):
-    print("Got type!")
-    if DEBUG:
-        time.sleep(1)
     return subprocess.Popen(["file", compressed], stdout=subprocess.PIPE).stdout.read().decode()
 
 def position_new_flag(content):
-    if DEBUG:
-        print(f"CONTENT: {content}")
-        print("Positioning new flag")
-        time.sleep(1)
+    found = 0
 
-    if "flag.txt" in content:
-        if DEBUG:
-            print("From flag.txt to last_flag")
-        subprocess.call(["mv","flag.txt","last_flag"])
+    for _file in content:
+        if "flag" in _file:
+            found = 1
+            subprocess.call(["mv", _file, "last_flag"])
+            break
 
-    elif "last_flag" in content:
-        if DEBUG:
-            print("From last_flag to last_flag")
-        subprocess.call(["mv","last_flag","last_flag"])
-
-    elif "flag" in content:
-        if DEBUG:
-            print("From flag to last_flag")
-        subprocess.call(["mv","flag","last_flag"])
-    else:
-        for _file in content:
-            if ".out" in _file:
-                if DEBUG:
-                    print("From flag.out to last_flag")
-                subprocess.call(["mv", "-v", "flag.out", "last_flag"])
-                break
-
+    if not found:
         print("ERROR: DID NOT FIND THE FLAG FILE\nPlease rename the compressed data to one of the following names:\nflag.txt\nlast_flag\nflag\nflag.out")
 
 def redefine_type_and_extract(tipo):
@@ -55,70 +34,61 @@ def redefine_type_and_extract(tipo):
 
     if _posix_tar in tipo:
         flag += ".tar"
-        subprocess.call(["mv", "-v", "last_flag", flag])
-        subprocess.call(["tar", "-xvf", flag])
+
+        subprocess.call(["mv",  "last_flag", flag])
+        subprocess.call(["tar", "-xf", flag])
+
         subprocess.call(["rm", flag])
-        if DEBUG:
-            print("POSIX")
-            time.sleep(1)
+
     elif _bzip2 in tipo:
         flag += ".bz2"
-        subprocess.call(["mv", "-v", "last_flag", flag])
-        subprocess.call(["bzip2", "-dvk", flag])
+        subprocess.call(["mv", "last_flag", flag])
+        subprocess.call(["bzip2", "-dk", flag])
         subprocess.call(["rm", flag])
-        if DEBUG:
-            print("bzip2")
-            time.sleep(1)
+
     elif _zip in tipo:
         flag += ".zip"
-        subprocess.call(["mv", "-v", "last_flag", flag])
+        subprocess.call(["mv", "last_flag", flag])
         subprocess.call(["unzip", flag])
         subprocess.call(["rm", flag])
-        if DEBUG:
-            print("ZIP")
-            time.sleep(1)
 
     elif _gzip in tipo:
         flag += ".gz"
-        subprocess.call(["mv", "-v", "last_flag", flag])
-        subprocess.call(["gzip", "-dv", flag])
+        subprocess.call(["mv", "last_flag", flag])
+        subprocess.call(["gzip", "-d", flag])
         #gunzip does not preserve file, not looked after options
         #subprocess.call(["rm", flag])
-        if DEBUG:
-            print("GZIP")
-            time.sleep(1)
 
     elif _xz in tipo:
         flag += ".xz"
-        subprocess.call(["mv", "-v", "last_flag", flag])
-        subprocess.call(["tar", "-xvf", flag])
+        subprocess.call(["mv", "last_flag", flag])
+        subprocess.call(["tar", "-xf", flag])
         subprocess.call(["rm", flag])
-        if DEBUG:
-            print("XZ")
-            time.sleep(1)
 
     else:
         print("unknown format... exiting")
         print("Take a look")
         print(f"{tipo}")
-        time.sleep(1)
+        time.sleep(3)
         if "ASCII" in tipo:
             print("It looks like the flag :)")
             subprocess.call(["cat", "last_flag"])
-        print(f"nº it -> {it}")
+        print(f"\nnº it -> {it}")
         sys.exit()
 
 
 
-_content = subprocess.Popen(["ls"], stdout=subprocess.PIPE).stdout.read().decode().split("\n")
-
-it = 0
-while True:
-    position_new_flag(_content)
-    _type = tipo( "last_flag" )
-    #print(f"Tipo obtido: {_type}")
-    redefine_type_and_extract(_type)
-    #time.sleep(3)
+def main():
     _content = subprocess.Popen(["ls"], stdout=subprocess.PIPE).stdout.read().decode().split("\n")
-    it += 1
+    global it
 
+    while True:
+        position_new_flag(_content)
+        _type = tipo( "last_flag" )
+
+        redefine_type_and_extract(_type)
+        _content = subprocess.Popen(["ls"], stdout=subprocess.PIPE).stdout.read().decode().split("\n")
+        it += 1
+
+if __name__ == '__main__':
+    main()
