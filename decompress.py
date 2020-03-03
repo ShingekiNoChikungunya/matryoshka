@@ -49,7 +49,7 @@ def redefine_type_and_extract(tipo):
     elif _zip in tipo:
         flag += ".zip"
         subprocess.call(["mv", "last_flag", flag])
-        subprocess.call(["unzip", flag])
+        subprocess.call(["unzip", "-qq", flag])
         subprocess.call(["rm", flag])
 
     elif _gzip in tipo:
