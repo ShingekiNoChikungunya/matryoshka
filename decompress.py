@@ -22,7 +22,8 @@ def position_new_flag(content):
     for _file in content:
         if "flag" in _file:
             found = 1
-            subprocess.call(["mv", _file, "last_flag"])
+            if _file != "last_flag":
+                subprocess.call(["mv", _file, "last_flag"])
             break
 
     if not found:
