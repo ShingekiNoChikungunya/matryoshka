@@ -12,6 +12,7 @@ _bzip2 = "bzip2 compressed data"
 _zip = "Zip archive data"
 _gzip = "gzip compressed data"
 _xz = "XZ compressed data"
+_ascii = "ASCII"
 
 
 def tipo(compressed):
@@ -27,8 +28,10 @@ def tipo(compressed):
         return 3
     elif _xz in type_str:
         return 4
-    else:
+    elif _ascii in type_str:
         return 5
+    else:
+        return 6
 
 def position_first_flag(name):
     subprocess.call(['mv', name, _compressed])
@@ -99,21 +102,23 @@ def redefine_type_and_extract( type_ ):
         subprocess.call(["rm", flag])
 
     elif type_ == 5:
+        print("It looks like the flag :)")
+        time.sleep(3)
+        print("<=========================>")
+        flag = subprocess.Popen(["cat", "last_flag"], stdout=subprocess.PIPE).stdout.read().decode()
+        print(flag)
+        if "\n" not in flag:
+            print()
+        print("<=========================>")
+        else:
+        print(f"nº iterations needed: {it}")
+        sys.exit()
+    elif type_ == 6:
         print("unknown format... exiting")
         print("Take a look")
         print(f"{type_}")
-        if "ASCII" in type_:
-            print("It looks like the flag :)")
-            time.sleep(3)
-            print("<=========================>")
-            subprocess.call(["cat", "last_flag"])
-            if "no line terminator" in type_:
-                print()
-            print("<=========================>")
-        else:
-            print("No ASCII text :(")
-        print(f"nº iterations needed: {it}")
-        sys.exit()
+        print("No ASCII text :(")
+
 
 
 
