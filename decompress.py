@@ -47,6 +47,7 @@ def position_new_flag(content, _content):
         print("ERROR: DID NOT FIND THE FLAG FILE\nPlease rename the compressed data to one of the following names:\nflag.txt\nlast_flag\nflag\nflag.out")
 
 def check_for_password( some_compressed_data ):
+    pass
 
 
 def redefine_type_and_extract( type_ ):
