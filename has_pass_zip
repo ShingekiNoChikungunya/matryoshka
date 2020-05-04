@@ -1,0 +1,6 @@
+#!/bin/sh
+
+crypted=$( 7z l -slt -- $1 | grep -i -c "Encrypted = +" )
+if [ "$crypted" -eq "1" ]; then
+   echo "pwd detected" 
+fi

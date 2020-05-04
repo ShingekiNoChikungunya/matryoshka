@@ -3,8 +3,7 @@ import sys
 import os
 import time
 
-it = 0
-
+_it = 0
 _compressed = "last_flag"
 
 _posix_tar = "POSIX tar archive (GNU)"
@@ -32,6 +31,21 @@ def tipo(compressed):
         return 5
     else:
         return 6
+'''
+python not handling non-zero status well,
+change commands output to echo
+'''
+def check_for_password_zip():
+    p = subprocess.Popen(["./has_pass_zip", _compressed + ".zip"], stdout=subprocess.PIPE)
+
+    if p.stdout is not None:
+        return True
+    else:
+        return False
+
+def check_for_password_rar():
+    return subprocess.check_output(["./has_pass_rar", _compressed + ".rar"])
+# future 7z implementation
 
 def position_first_flag(name):
     subprocess.call(['mv', name, _compressed])
@@ -49,13 +63,8 @@ def position_new_flag(content, _content):
     if not found:
         print("ERROR: DID NOT FIND THE FLAG FILE\n")
 
-def check_for_password( some_compressed_data ):
-    pass
-
-
 def redefine_type_and_extract( type_ ):
     flag = _compressed
-    global it
 
     if type_ == 0:
         flag += ".tar"
@@ -75,16 +84,21 @@ def redefine_type_and_extract( type_ ):
         flag += ".zip"
 
         subprocess.call(["mv", "last_flag", flag])
-        subprocess.Popen("zip2john last_flag.zip > hash 2>/dev/null", shell=True)
-        subprocess.call(["john","hash"])
-        # os.system("john hash --wordlist=pwd.txt 2>&1 1>/dev/null")
-        passwd = subprocess.Popen(["john", "hash", "--show"], stdout=subprocess.PIPE).stdout.read().decode()
-        try:
-            passwd = passwd.split("\n")[0].split(':')[1]
-        except:
-            print('[~~~]ERROR',passwd,sep='')
-        subprocess.call(["unzip", "-o", "-P", passwd , "-qq", flag])
-        subprocess.call(["rm", flag, "hash"])
+        if check_for_password_zip() is not None:
+            subprocess.Popen("zip2john last_flag.zip > hash 2>/dev/null", shell=True)
+            subprocess.call(["john","hash"])
+            # os.system("john hash --wordlist=pwd.txt 2>&1 1>/dev/null")
+            passwd = subprocess.Popen(["john", "hash", "--show"], stdout=subprocess.PIPE).stdout.read().decode()
+            try:
+                passwd = passwd.split("\n")[0].split(':')[1]
+            except:
+                print('[~~~]ERROR',passwd,sep='')
+            subprocess.call(["unzip", "-o", "-P", passwd , "-qq", flag])
+            subprocess.call(["rm", flag, "hash"])
+        else:
+            subprocess.call(["unzip", "-o", "-qq", flag])
+            subprocess.call(["rm", flag])
+
 
     elif type_ == 3:
         flag += ".gz"
@@ -108,7 +122,7 @@ def redefine_type_and_extract( type_ ):
         print("<=========================>")
         print(flag)
         print("<=========================>")
-        print(f"nº iterations needed: {it}")
+        print(f"nº iterations needed: {_it}")
         sys.exit()
 
     elif type_ == 6:
@@ -122,19 +136,21 @@ def redefine_type_and_extract( type_ ):
 
 
 def main():
-    global it
+    global _it
 
-    _content = subprocess.Popen(["ls"], stdout=subprocess.PIPE).stdout.read().decode().split("\n")
     position_first_flag(sys.argv[1])
+    _content = subprocess.Popen(["ls"], stdout=subprocess.PIPE).stdout.read().decode().split("\n")
     content = _content
 
     while True:
-        position_new_flag(content, _content)
+        if content != _content:
+            position_new_flag(content, _content)
+
         compressed_type = tipo( _compressed )
 
         redefine_type_and_extract(compressed_type)
         content = subprocess.Popen(["ls"], stdout=subprocess.PIPE).stdout.read().decode().split("\n")
-        it += 1
+        _it += 1
 
 if __name__ == '__main__':
     main()
