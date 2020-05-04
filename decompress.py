@@ -120,7 +120,10 @@ def redefine_type_and_extract( type_ ):
         flag = subprocess.Popen(["cat", "last_flag"], stdout=subprocess.PIPE).stdout.read().decode()
         time.sleep(3)
         print("<=========================>")
-        print(flag)
+        if "\n" in flag:
+            print(flag, end="")
+        else:
+            print(flag)
         print("<=========================>")
         print(f"nº iterations needed: {_it}")
         sys.exit()
