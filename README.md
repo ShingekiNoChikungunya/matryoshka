@@ -11,5 +11,6 @@ The script supports only most commom tools and algorithms, like:
 
 ## Usage
 ```
+$ chmod 0755 has_pass_zip
 $ python decompress.py zip_bomb.something
 ```
