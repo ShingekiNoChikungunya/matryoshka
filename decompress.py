@@ -47,7 +47,7 @@ def position_new_flag(content, _content):
             break
 
     if not found:
-        print("ERROR: DID NOT FIND THE FLAG FILE\nPlease rename the compressed data to one of the following names:\nflag.txt\nlast_flag\nflag\nflag.out")
+        print("ERROR: DID NOT FIND THE FLAG FILE\n")
 
 def check_for_password( some_compressed_data ):
     pass
@@ -103,9 +103,9 @@ def redefine_type_and_extract( type_ ):
 
     elif type_ == 5:
         print("It looks like the flag :)")
+        flag = subprocess.Popen(["cat", "last_flag"], stdout=subprocess.PIPE).stdout.read().decode()
         time.sleep(3)
         print("<=========================>")
-        flag = subprocess.Popen(["cat", "last_flag"], stdout=subprocess.PIPE).stdout.read().decode()
         print(flag)
         print("<=========================>")
         print(f"nº iterations needed: {it}")
