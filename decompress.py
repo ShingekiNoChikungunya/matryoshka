@@ -107,8 +107,6 @@ def redefine_type_and_extract( type_ ):
         print("<=========================>")
         flag = subprocess.Popen(["cat", "last_flag"], stdout=subprocess.PIPE).stdout.read().decode()
         print(flag)
-        if "\n" not in flag:
-            print()
         print("<=========================>")
         print(f"nº iterations needed: {it}")
         sys.exit()
