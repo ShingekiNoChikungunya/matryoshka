@@ -11,5 +11,5 @@ The script supports only most commom tools and algorithms, like:
 
 ## Usage
 ```
-$ python decompress.py
+$ python decompress.py zip_bomb.something
 ```
