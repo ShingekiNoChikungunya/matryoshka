@@ -110,14 +110,15 @@ def redefine_type_and_extract( type_ ):
         if "\n" not in flag:
             print()
         print("<=========================>")
-        else:
         print(f"nº iterations needed: {it}")
         sys.exit()
+
     elif type_ == 6:
         print("unknown format... exiting")
         print("Take a look")
         print(f"{type_}")
         print("No ASCII text :(")
+        sys.exit()
 
 
 
