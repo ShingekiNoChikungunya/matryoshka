@@ -31,30 +31,37 @@ def tipo(compressed):
         return 5
     else:
         return 6
-'''
-python not handling non-zero status well,
-change commands output to echo
-'''
+
+
 def check_for_password_zip():
-    p = subprocess.Popen(["./has_pass_zip", _compressed + ".zip"], stdout=subprocess.PIPE)
+    p = subprocess.Popen(["./has_pass_zip", _compressed + ".zip"],
+                         stdout=subprocess.PIPE)
 
     if p.stdout is not None:
         return True
-    else:
-        return False
+    return False
+
 
 def check_for_password_rar():
-    return subprocess.check_output(["./has_pass_rar", _compressed + ".rar"])
+    p = subprocess.Popen(["./has_pass_rar", _compressed + ".rar"],
+                         stdout=subprocess.PIPE)
+
+    if p.stdout is not None:
+        return True
+    return False
+
 # future 7z implementation
+
 
 def position_first_flag(name):
     subprocess.call(['mv', name, _compressed])
+
 
 def position_new_flag(content, _content):
     found = 0
 
     for _file in content:
-        if  _file not in _content:
+        if _file not in _content:
             found = 1
             if _file != "last_flag":
                 subprocess.call(["mv", _file, "last_flag"])
@@ -63,7 +70,8 @@ def position_new_flag(content, _content):
     if not found:
         print("ERROR: DID NOT FIND THE FLAG FILE\n")
 
-def redefine_type_and_extract( type_ ):
+
+def redefine_type_and_extract(type_):
     flag = _compressed
 
     if type_ == 0:
@@ -85,28 +93,31 @@ def redefine_type_and_extract( type_ ):
 
         subprocess.call(["mv", "last_flag", flag])
         if check_for_password_zip() is not None:
-            subprocess.Popen("zip2john last_flag.zip > hash 2>/dev/null", shell=True)
-            subprocess.call(["john","hash"])
+            subprocess.Popen("zip2john last_flag.zip > hash 2>/dev/null",
+                             shell=True)
+            subprocess.call(["john", "hash"],
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
             # os.system("john hash --wordlist=pwd.txt 2>&1 1>/dev/null")
-            passwd = subprocess.Popen(["john", "hash", "--show"], stdout=subprocess.PIPE).stdout.read().decode()
+            passwd = subprocess.Popen(["john", "hash", "--show"],
+                                      stdout=subprocess.PIPE).stdout.read().decode()
             try:
                 passwd = passwd.split("\n")[0].split(':')[1]
             except:
                 print('[~~~]ERROR',passwd,sep='')
-            subprocess.call(["unzip", "-o", "-P", passwd , "-qq", flag])
+            subprocess.call(["unzip", "-o", "-P", passwd, "-qq", flag])
             subprocess.call(["rm", flag, "hash"])
         else:
             subprocess.call(["unzip", "-o", "-qq", flag])
             subprocess.call(["rm", flag])
-
 
     elif type_ == 3:
         flag += ".gz"
 
         subprocess.call(["mv", "last_flag", flag])
         subprocess.call(["gzip", "-d", flag])
-        #gunzip does not preserve file, not looked after options
-        #subprocess.call(["rm", flag])
+        # gunzip does not preserve file, not looked after options
+        # subprocess.call(["rm", flag])
 
     elif type_ == 4:
         flag += ".xz"
@@ -136,8 +147,6 @@ def redefine_type_and_extract( type_ ):
         sys.exit()
 
 
-
-
 def main():
     global _it
 
@@ -154,6 +163,7 @@ def main():
         redefine_type_and_extract(compressed_type)
         content = subprocess.Popen(["ls"], stdout=subprocess.PIPE).stdout.read().decode().split("\n")
         _it += 1
+
 
 if __name__ == '__main__':
     main()
