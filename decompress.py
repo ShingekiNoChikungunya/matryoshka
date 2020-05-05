@@ -86,7 +86,7 @@ def extract_password_zip():
         ''' file.zip:passwd:fileinside\nblabla '''
         passwd = passwd.split("\n")[0].split(':')[1]
     except:
-        print('[~~~]ERROR', passwd, sep='')
+        print(f'[~~~]ERROR -> password = {passwd}')
 
     return passwd
 
