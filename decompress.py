@@ -30,8 +30,10 @@ def parse_wordlist_name():
         sys.exit(1)
     return sys.argv[w_index + 1]
 
-def tipo(compressed):
-    type_str = subprocess.Popen(["file", compressed], stdout=subprocess.PIPE).stdout.read().decode()
+
+def type(compressed):
+    type_str = subprocess.Popen(["file", compressed],
+                                stdout=subprocess.PIPE).stdout.read().decode()
 
     if _posix_tar in type_str:
         return 0
@@ -137,6 +139,7 @@ def print_ascii():
     time.sleep(3)
     print_flag(flag)
     print(f"nº iterations needed: {_it}")
+
     sys.exit()
 
 
@@ -147,6 +150,7 @@ def print_unknown_type():
     type_str = subprocess.Popen(["file", "unknown_file"],
                                 stdout=subprocess.PIPE).stdout.read().decode()
     print(f"{type_str[:-1]}")
+
     sys.exit()
 
 
@@ -239,7 +243,7 @@ def main():
         if content != _content:
             position_new_flag(content, _content)
 
-        compressed_type = tipo(_compressed)
+        compressed_type = type(_compressed)
 
         redefine_type_and_extract(compressed_type)
         content = subprocess.Popen(["ls"], stdout=subprocess.PIPE)\
