@@ -1,10 +1,10 @@
 import subprocess
 import sys
-import os
 import time
 
 _it = 0
 _compressed = "last_flag"
+_wl = None
 
 _posix_tar = "POSIX tar archive (GNU)"
 _bzip2 = "bzip2 compressed data"
@@ -13,6 +13,22 @@ _gzip = "gzip compressed data"
 _xz = "XZ compressed data"
 _ascii = "ASCII"
 
+
+def has_wordlist():
+    global _wl
+
+    if "-w" in sys.argv:
+        _wl = parse_wordlist_name()
+
+
+def parse_wordlist_name():
+    argc = len(sys.argv)
+
+    w_index = sys.argv.index('-w')
+    if w_index >= argc - 1:
+        print("Did you provide a wordlist?")
+        sys.exit(1)
+    return sys.argv[w_index + 1]
 
 def tipo(compressed):
     type_str = subprocess.Popen(["file", compressed], stdout=subprocess.PIPE).stdout.read().decode()
@@ -76,16 +92,21 @@ def position_new_flag(content, _content):
 def extract_password_zip():
     subprocess.Popen("zip2john last_flag.zip > hash 2>/dev/null",
                      shell=True)
-    subprocess.call(["john", "hash"],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
-    # os.system("john hash --wordlist=pwd.txt 2>&1 1>/dev/null")
+    if _wl is not None:
+        subprocess.call(["john", "hash", "--wordlist=" + _wl],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE)
+    else:
+        subprocess.call(["john", "hash"],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE)
+
     passwd = subprocess.Popen(["john", "hash", "--show"],
                               stdout=subprocess.PIPE).stdout.read().decode()
     try:
         ''' file.zip:passwd:fileinside\nblabla '''
         passwd = passwd.split("\n")[0].split(':')[1]
-    except:
+    except IndexError:
         print(f'[~~~]ERROR -> password = {passwd}')
 
     return passwd
@@ -116,17 +137,27 @@ def print_ascii():
     time.sleep(3)
     print_flag(flag)
     print(f"nº iterations needed: {_it}")
+    sys.exit()
 
 
-def print_unknown_type(type_):
+def print_unknown_type():
     print("unknown format... exiting")
-    print("Take a look")
-    print(f"{type_}")
-    print("No ASCII text :(")
+    print("Take a look:")
+    redefine_type("unknown_file")
+    type_str = subprocess.Popen(["file", "unknown_file"],
+                                stdout=subprocess.PIPE).stdout.read().decode()
+    print(f"{type_str[:-1]}")
+    sys.exit()
 
 
-def extract_zip(passwd):
+def extract_zip():
     flag = "last_flag.zip"
+    redefine_type(flag)
+
+    passwd = None
+    if check_for_password_zip() is not None:
+        passwd = extract_password_zip()
+
     if passwd is None:
         subprocess.call(["unzip", "-o", "-qq", flag])
         subprocess.call(["rm", flag])
@@ -135,58 +166,65 @@ def extract_zip(passwd):
         subprocess.call(["rm", flag, "hash"])
 
 
+def extract_tar():
+    flag = "last_flag.tar"
+    redefine_type(flag)
+
+    subprocess.call(["tar", "-xf", flag])
+    subprocess.call(["rm", flag])
+
+
+def extract_bz2():
+    flag = "last_flag.bz2"
+    redefine_type(flag)
+
+    subprocess.call(["bzip2", "-dk", flag])
+    subprocess.call(["rm", flag])
+
+
+def extract_gunzip():
+    flag = "last_flag.gz"
+    redefine_type(flag)
+
+    subprocess.call(["gzip", "-d", flag])
+    # gunzip does not preserve file, not looked after options
+    # subprocess.call(["rm", flag])
+
+
+def extract_xz():
+    flag = "last_flag.xz"
+    redefine_type(flag)
+
+    subprocess.call(["tar", "-xf", flag])
+    subprocess.call(["rm", flag])
+
+
 def redefine_type_and_extract(type_):
-    flag = _compressed
-
     if type_ == 0:
-        flag += ".tar"
-        redefine_type(flag)
-
-        subprocess.call(["tar", "-xf", flag])
-        subprocess.call(["rm", flag])
+        extract_tar()
 
     elif type_ == 1:
-        flag += ".bz2"
-        redefine_type(flag)
-
-        subprocess.call(["bzip2", "-dk", flag])
-        subprocess.call(["rm", flag])
+        extract_bz2()
 
     elif type_ == 2:
-        flag += ".zip"
-        redefine_type(flag)
-
-        passwd = None
-        if check_for_password_zip() is not None:
-            passwd = extract_password_zip()
-        extract_zip(passwd)
+        extract_zip()
 
     elif type_ == 3:
-        flag += ".gz"
-        redefine_type(flag)
-
-        subprocess.call(["gzip", "-d", flag])
-        # gunzip does not preserve file, not looked after options
-        # subprocess.call(["rm", flag])
+        extract_gunzip()
 
     elif type_ == 4:
-        flag += ".xz"
-        redefine_type(flag)
-
-        subprocess.call(["tar", "-xf", flag])
-        subprocess.call(["rm", flag])
+        extract_xz()
 
     elif type_ == 5:
         print_ascii()
-        sys.exit()
 
     elif type_ == 6:
-        print_unknown_type(type_)
-        sys.exit()
+        print_unknown_type()
 
 
 def main():
     global _it
+    has_wordlist()
 
     position_first_flag(sys.argv[1])
     _content = subprocess.Popen(["ls"], stdout=subprocess.PIPE)\
