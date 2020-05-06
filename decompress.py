@@ -225,8 +225,12 @@ def redefine_type_and_extract(type_):
 def main():
     global _it
     has_wordlist()
+    try:
+        position_first_flag(sys.argv[1])
+    except IndexError:
+        print("usage: python decompress.py [file] [-w wordlist]")
+        sys.exit()
 
-    position_first_flag(sys.argv[1])
     _content = subprocess.Popen(["ls"], stdout=subprocess.PIPE)\
         .stdout.read().decode().split("\n")
     content = _content
