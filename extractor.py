@@ -2,17 +2,17 @@ from utils import *
 from utils import _compressed, _wl
 
 def check_for_password_zip():
-    p = shell_cmd_process("./has_pass_zip " + _compressed + ".zip")
+    has_pass = shell_cmd_output("./has_pass_zip " + _compressed + ".zip")
 
-    if p.stdout is not None:
+    if has_pass != "":
         return True
     return False
 
 
 def check_for_password_rar():
-    p = shell_cmd_process("./has_pass_zip " + _compressed + ".rar")
+    has_pass = shell_cmd_output("./has_pass_zip " + _compressed + ".rar")
 
-    if p.stdout is not None:
+    if has_pass != "":
         return True
     return False
 
@@ -23,6 +23,7 @@ def parse_password(raw_password):
         password = raw_password.split("\n")[0].split(':')[1]
     except IndexError:
         print(f'[~~~]ERROR -> password = {raw_password}')
+        exit()
 
     return password
 
@@ -44,7 +45,7 @@ def extract_zip():
     redefine_type(flag)
 
     passwd = None
-    if check_for_password_zip() is not None:
+    if check_for_password_zip() is not False:
         passwd = extract_password_zip()
 
     if passwd is None:
