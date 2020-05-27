@@ -6,7 +6,6 @@ from extractor import *
 
 
 def main():
-    #global _it
     has_wordlist()
     try:
         position_first_flag(compressed_file())

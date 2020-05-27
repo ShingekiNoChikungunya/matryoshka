@@ -64,6 +64,10 @@ def position_first_flag(name):
 
 
 def position_new_flag(content, _content):
+    # naive method,
+    # file that was not there when the script
+    # started is treated like potential compressed file
+
     # _content is the dir at the start of the script
     # content is the modified dir
     found = 0
