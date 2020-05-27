@@ -28,7 +28,7 @@ On the first loop he will rename it to the generic name _last flag_, in the func
 
 _last flag_ will continuely be used throughout the script. Second step, it will get the type of compressed file by the linux util _file_, in the function _type_. The function _type_ will use the static strings defined in _utils.py_.
 
-After getting the file type, at _decompress.py_, the file generically named _last flag_ will be renamed to its appropiate extension, eg. _last flag.zip_ in the function _redefine_type_( _utils.py_), and then suitably extracted, this takes place in the _redefine_type_and_extract_ function at _extractor.py_.
+After getting the file type, at _decompress.py_, the file generically named _last flag_ will be renamed to its appropiate extension, eg. _last flag.zip_ in the function _redefine_type_(_utils.py_), and then suitably extracted, this takes place in the _redefine_type_and_extract_ function at _extractor.py_.
 
 **Bonus**: Some file types are password protected, so we check it and deal with it in each extraction function. Ideally the function _redefine_type_and_extract_ doesn't need to know it.
 
